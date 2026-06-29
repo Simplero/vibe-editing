@@ -1,0 +1,2 @@
+requests>=2.31
+# ffprobe (from ffmpeg) must be on PATH for audio + duration checks.

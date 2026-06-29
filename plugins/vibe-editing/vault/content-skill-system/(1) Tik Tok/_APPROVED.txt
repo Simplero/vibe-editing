@@ -1,0 +1,3 @@
+# Approved music beds — YOUR ear-confirmed tracks. The picker aims for the "sound" of
+# these (the taste centroid). One track-name substring per line. Add to it as you approve more.
+# (Starts empty — it learns YOUR taste, not anyone else's.)

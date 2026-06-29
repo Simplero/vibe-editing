@@ -1,0 +1,10 @@
+{
+  "name": "qa",
+  "description": "Single-cam Q&A / hotline from stage cam. Same stage chain as listicle; project manifest should set reframe.preset='stage' (zoom 1.6, eye_y 0.18 — tight ROI excludes audience). Use multicam_qa pipeline (TODO) for host+guest split-screen.",
+  "stages": ["cut", "reframe", "grade", "captions", "mix", "leadfix"],
+  "notes": {
+    "reframe.preset": "stage",
+    "captions": "host=white only (single cam = one speaker on screen); dual-color (host=white, guest=yellow) only if both speakers share the same camera frame.",
+    "leadfix.head_trim": "Keep ~0.063s — Q&A clips have the same SOP head-trim as listicles."
+  }
+}

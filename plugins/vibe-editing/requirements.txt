@@ -1,0 +1,27 @@
+# Core Python dependencies for the clip pipeline (Python 3.10+).
+# Install:  python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+# Heavy/optional packages (local transcription, diarization, mediapipe reframe) are listed in
+# SETUP.md — install them only if you use those paths.
+
+numpy
+opencv-python        # cv2 — face detection / reframe / frame analysis
+Pillow               # PIL — title cards, image ops
+scipy                # signal processing (audio analysis, sync)
+librosa              # audio feature extraction / onset detection
+soundfile            # audio I/O (librosa backend)
+matplotlib           # waveform / spectrogram QC plots
+requests             # HTTP (Groq transcription, misc APIs)
+httpx                # HTTP client
+anthropic            # caption director + editorial steps (ANTHROPIC_API_KEY)
+openai               # OpenAI-compatible client
+num2words            # caption number normalization
+wordfreq             # caption emphasis / word-rarity scoring
+pyspellchecker       # caption spell QC
+
+# Ingest — YouTube/URL footage download
+yt-dlp
+
+# Offline transcription — the KEY-FREE fallback, used automatically when GROQ_API_KEY is empty.
+# CPU-friendly (int8). First run downloads the model (~150 MB for 'small'). This is what makes
+# the kit work with no API key at all.
+faster-whisper

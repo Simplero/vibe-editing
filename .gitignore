@@ -1,0 +1,12 @@
+# Never ship test/user output or build cruft
+_runs/
+_TEST_OUTPUT/
+*_OUTPUT/
+out/
+**/00_SOURCE/
+**/10_WORK/
+**/20_DELIVER/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store

@@ -1,0 +1,21 @@
+# Heavy binary media packs (overlays / transitions / text) — ~11GB, single files up to 3GB.
+# These are licensed/regenerable media, not skill logic. GitHub rejects >100MB files.
+# They live locally only; not tracked here.
+assets/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Scratch / logs
+*.log
+*.tmp
+/tmp/
+10_WORK/
+_segments/

@@ -1,0 +1,115 @@
+{
+  "subset": "general short-form priors (retrain on your own clips)",
+  "base_winrate": 0.253,
+  "note": "Small sample (n=158); low_n cells are directional only. Opens FLIP vs monologue (bold_claim wins, number weak); weld_reorder underperforms / interior_trims is fine. Use the JUDGE (source-agnostic) as the primary ranker.",
+  "open_type_lift": {
+    "cut_to_payoff": {
+      "lift": 1.97
+    },
+    "principle": {
+      "lift": 1.97
+    },
+    "bold_claim": {
+      "lift": 1.32
+    },
+    "other": {
+      "lift": 1.08
+    },
+    "direct_address": {
+      "lift": 0.93
+    },
+    "question": {
+      "lift": 0.56
+    },
+    "anecdote": {
+      "lift": 0.54
+    },
+    "extreme_number": {
+      "lift": 0.4
+    },
+    "kept_source_open": {
+      "lift": 0.0
+    }
+  },
+  "exit_type_lift": {
+    "question": {
+      "lift": 3.95
+    },
+    "trails_off": {
+      "lift": 2.63
+    },
+    "punchline_peak": {
+      "lift": 1.97
+    },
+    "sentence_end": {
+      "lift": 1.69
+    },
+    "cut_before_explanation": {
+      "lift": 0.91
+    },
+    "imperative_button": {
+      "lift": 0.85
+    },
+    "other": {
+      "lift": 0.79
+    },
+    "principle": {
+      "lift": 0.76
+    }
+  },
+  "structure_lift": {
+    "front_trim": {
+      "lift": 1.18
+    },
+    "interior_trims": {
+      "lift": 1.1
+    },
+    "verbatim_lift": {
+      "lift": 0.83
+    },
+    "weld_reorder": {
+      "lift": 0.63
+    }
+  },
+  "cut_taxonomy": {
+    "tangent_digression": {
+      "span_share": 0.36
+    },
+    "redundant_restatement": {
+      "span_share": 0.202
+    },
+    "framework_scaffold": {
+      "span_share": 0.1
+    },
+    "discourse_marker": {
+      "span_share": 0.098
+    },
+    "repair_falsestart": {
+      "span_share": 0.085
+    },
+    "hedge_filler": {
+      "span_share": 0.032
+    },
+    "weak_example": {
+      "span_share": 0.031
+    },
+    "cta_outro": {
+      "span_share": 0.021
+    },
+    "preamble_personal": {
+      "span_share": 0.021
+    },
+    "throat_clear": {
+      "span_share": 0.014
+    },
+    "name_drop": {
+      "span_share": 0.013
+    },
+    "justification_why": {
+      "span_share": 0.012
+    },
+    "other": {
+      "span_share": 0.012
+    }
+  }
+}

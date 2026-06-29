@@ -1,0 +1,27 @@
+{
+  "_doc": "Title/selection weights for a highlights channel. KPI = subscriber conversion (subs_per_1k_views). These weights are the METHOD — starter defaults you tune on your OWN channel: export your YouTube Studio table (highlight_studio_import.py) and re-rank these patterns against your real subscriber numbers. score.py reads this. Runs standalone — no external database.",
+  "kpi": "subs_per_1k_views",
+  "title_patterns": [
+    {"name": "watch_if_struggle", "regex": "(?i)^watch this if you", "f1k": 18.0, "points": 10},
+    {"name": "you_declarative",   "regex": "(?i)^(you|your|you're|you’re)\\b", "f1k": 5.8, "points": 9},
+    {"name": "quoted_question",   "regex": "^[\"“].+\\?[\"”]?$", "f1k": 5.1, "points": 9},
+    {"name": "helping",           "regex": "(?i)^helping a", "f1k": 4.6, "points": 7},
+    {"name": "how_to",            "regex": "(?i)^how (to|i)\\b", "f1k": 4.4, "points": 6},
+    {"name": "number_lead",       "regex": "^\\d", "f1k": 6.7, "points": 6},
+    {"name": "why_lead",          "regex": "(?i)^why\\b", "f1k": 3.3, "points": 3},
+    {"name": "statement_other",   "regex": ".*", "f1k": 4.3, "points": 5}
+  ],
+  "weights": {
+    "title_pattern": 10,
+    "payoff": 30,
+    "hook_numbers": 15,
+    "portability": 20,
+    "duration": 10,
+    "self_contained": 10,
+    "topic": 5
+  },
+  "duration_s": {"ideal_min": 180, "ideal_max": 600, "ok_min": 90, "hard_max": 1200},
+  "on_brand_topics": ["sales", "offers", "ads", "leads", "money", "business", "hiring", "marketing", "agency", "content", "mindset", "scaling", "pricing"],
+  "hook_type_sub_multiplier": {"contrarian": 1.0, "question": 0.9, "how_to": 0.7, "bold_claim": 0.6, "mistake": 0.5, "money": 0.5, "fear": 0.5, "curiosity": 0.3, "story": 0.2, "other": 0.6},
+  "min_score_to_post": 55
+}

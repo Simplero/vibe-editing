@@ -1,0 +1,39 @@
+{
+  "name": "multicam_podcast_spice_1080",
+  "_note": "Generic 1080x1920 SPICE caption preset for multicam podcast dual-color clips. Multi-weight Montserrat, host=white / guest=yellow, gentle italics for quotes, soft shadow, y=60% from top (below chin). Color keys are 'host' (default) and 'guest' — multifinish.py emits voice_spans with 'guest' label for guest's spoken runs; everything else falls back to default_voice=host (white). Copy-and-tune per project if needed (font_size, sizes, y_percent).",
+  "video": { "width": 1080, "height": 1920 },
+  "fonts_dir": "../../caption-clips/fonts/free_font",
+  "weights": {
+    "mute":     "Montserrat Light",
+    "base":     "Montserrat Regular",
+    "soft":     "Montserrat Medium",
+    "strong":   "Montserrat Bold",
+    "emphasis": "Montserrat Extrabold",
+    "payoff":   "Montserrat Black"
+  },
+  "default_weight": "base",
+  "font_size_px": 75,
+  "sizes": { "base": 100, "emph": 125, "strong": 150, "peak": 185 },
+  "auto_size": { "numbers": "emph" },
+  "italic_fax": -0.12,
+  "colors": { "host": "FFFFFF", "guest": "FECB00" },
+  "default_voice": "host",
+  "number_color": null,
+  "layout": {
+    "y_percent_from_top": 60,
+    "max_chars_per_line": 18,
+    "max_words_per_screen": 3
+  },
+  "shadow": { "enabled": true, "alpha": 0, "offset_y": 8, "blur": 9, "color": "000000", "stroke_px": 7, "stroke_color": "000000" },
+  "animation": {
+    "position_drop_px": 8,
+    "position_drop_duration_ms": 500,
+    "opacity_from": 0.90,
+    "opacity_fade_duration_ms": 83
+  },
+  "timing": { "onset_correct": true, "min_cue_dur": 0.40 },
+  "auto_emphasis": {
+    "numbers": "emphasis",
+    "words_strong": ["never","always","every","only","most","best","worst","nothing","everything","exactly","real","truth","proof","key","secret"]
+  }
+}

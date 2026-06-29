@@ -1,0 +1,12 @@
+{
+  "_note": "Locked camera sync for the 2026-04-16 Speaker Q&A workshop. cam_time = mic_time - offset. Solved 2026-06-05 via 4-mic-mix FFT xcorr (numpy-only). Re-sync per new footage and replace this block.",
+  "cam_dir": "00_SOURCE",
+  "offsets": { "C2092-001": 833.81, "C2161-002": 863.29, "C2118-005": 827.93 },
+  "roles":   { "C2092-001": "speaker", "C2161-002": "guest", "C2118-005": "wide" },
+  "mics": [
+    "AUDIO/01LAV1.WAV",
+    "AUDIO/03MIC3.WAV",
+    "drive-download-20260604T145638Z-3-003/AUDIO/02LAV2.WAV",
+    "drive-download-20260604T145638Z-3-003/AUDIO/04MIC4.WAV"
+  ]
+}

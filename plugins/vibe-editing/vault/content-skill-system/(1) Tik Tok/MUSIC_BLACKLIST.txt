@@ -1,0 +1,1 @@
+# Banned tracks — filenames/substrings you never want auto-picked. One per line.
