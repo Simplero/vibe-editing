@@ -63,7 +63,12 @@ def force_lowercase(words: list) -> list:
         alpha_only = re.sub(r"[^A-Za-z]", "", wt)
         if alpha_only and alpha_only.isupper() and len(alpha_only) >= 2:
             continue
-        w["word"] = wt.lower()
+        lw = wt.lower()
+        # The pronoun "I" (and its contractions) is ALWAYS capitalized in English —
+        # sentence-case lowercasing must never render "i love" / "i'm". Restore the cap.
+        if re.sub(r"[^a-z']", "", lw) in ("i", "i'm", "i'll", "i've", "i'd"):
+            lw = "I" + lw[1:]
+        w["word"] = lw
     return words
 
 

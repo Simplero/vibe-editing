@@ -10,3 +10,6 @@ out/
 __pycache__/
 *.pyc
 .DS_Store
+
+# our content projects (guest transcripts, sources, clips) — never in the shared kit repo
+projects/

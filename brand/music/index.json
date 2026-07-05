@@ -1,0 +1,17 @@
+{
+ "Calvin-signature.mp3": {
+  "path": "Calvin-signature.mp3",
+  "folder": "",
+  "banned": false,
+  "vibe": "warm-melodic",
+  "tempo": 117.5,
+  "energy": 0.2687,
+  "brightness": 1747,
+  "perc_ratio": 0.233,
+  "onset_density": 1.767,
+  "mode": "minor",
+  "major_corr": 0.331,
+  "minor_corr": 0.36,
+  "duration": 16.0
+ }
+}

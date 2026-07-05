@@ -200,6 +200,8 @@ def do_burn(inp, out, gendir, work, env, args, preset):
         print("spice_caption: --no-layout -> using preset STATIC y_percent_from_top", flush=True)
     spice_cmd = ["python3", str(SC / "generate_spice.py"), str(spice), "--preset", str(preset),
                  "--out", str(ass), "--burn", str(inp), "--burn-out", str(out)]
+    if getattr(args, "emphasis_force_last", None):
+        spice_cmd.extend(["--emphasis-force-last", args.emphasis_force_last])
     if stream.exists():
         spice_cmd.extend(["--style", str(stream)])
     if layout and Path(layout).exists():
@@ -240,6 +242,10 @@ def main():
                     help="JSON file of per-clip word-text fixes {\"heard\": \"burned\"} applied to the "
                          "transcription before formatting (case-insensitive match on the bare word; "
                          "punctuation preserved). For reviewer-flagged caption words the ASR mishears.")
+    ap.add_argument("--emphasis-force-last", default=None,
+                    help="Comma-separated payoff word(s) to FORCE as the brand-yellow emphasis pop on "
+                         "their LAST occurrence (e.g. 'you' for a clip landing on 'the value is YOU'). "
+                         "Passed through to generate_spice --emphasis-force-last.")
     args = ap.parse_args()
 
     if args.gen_only and args.burn_from:

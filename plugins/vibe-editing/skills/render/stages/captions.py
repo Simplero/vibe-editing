@@ -201,6 +201,11 @@ def run(work_dir, config, inputs, inputs_meta, project, manifest, out_path):
         burn_cmd += ["--layout-file", str(layout_file)]
     elif no_layout:
         burn_cmd += ["--no-layout"]
+    # Director-forced payoff word(s) for the brand-yellow emphasis pop (last occurrence), e.g.
+    # captions.emphasis_force_last=["you"] to land "the value is YOU" in yellow. Accepts list or string.
+    efl = config.get("emphasis_force_last")
+    if efl:
+        burn_cmd += ["--emphasis-force-last", ",".join(efl) if isinstance(efl, (list, tuple)) else str(efl)]
     r = subprocess.run(burn_cmd)
     if r.returncode != 0:
         # Non-zero propagates: the render engine aborts the whole render — nothing ships.

@@ -16,7 +16,10 @@ from pathlib import Path
 
 from _util import run as ff, resolve_path
 
-VERSION = "1.1.0"  # 1.1.0: music=null/"" → voice-only (no bed)
+VERSION = "1.2.0"  # 1.2.0: pin all audio to 48kHz (aresample) so low-rate (16kHz) sources don't
+                   #        emerge from loudnorm at a wrong rate + truncated duration; voice TP -1.5
+                   #        (was -7, which floored integrated loudness ~3dB under the -16 target).
+# 1.1.0: music=null/"" → voice-only (no bed)
 
 
 def run(work_dir, config, inputs, inputs_meta, project, manifest, out_path):
@@ -49,17 +52,17 @@ def run(work_dir, config, inputs, inputs_meta, project, manifest, out_path):
     cum = float(upstream_meta.get("total_duration_s", 0) or 0)
     afade_out_st = max(0.0, round(cum - fade_out, 2))
 
-    fc = (f"[0:a]highpass=f=80,loudnorm=I={voice_lufs}:LRA=11:TP=-7[v];"
-          f"[1:a]loudnorm=I={music_lufs}:LRA=11:TP=-9,"
+    fc = (f"[0:a]aresample=48000,highpass=f=80,loudnorm=I={voice_lufs}:LRA=11:TP=-1.5,aresample=48000[v];"
+          f"[1:a]aresample=48000,loudnorm=I={music_lufs}:LRA=11:TP=-9,aresample=48000,"
           f"afade=t=in:st=0:d={fade_in},afade=t=out:st={afade_out_st}:d={fade_out}[m];"
-          f"[v][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit={limiter}:level=disabled[a]")
+          f"[v][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit={limiter}:level=disabled,aresample=48000[a]")
 
     ff(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
         "-i", prior, "-i", str(music),
         "-filter_complex", fc,
         "-map", "0:v", "-map", "[a]",
         "-c:v", "h264_videotoolbox", "-b:v", "14M", "-tag:v", "avc1", "-pix_fmt", "yuv420p",
-        "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out_path)])
+        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", str(out_path)])
 
     return {"out": str(out_path), "meta": {
         "music": str(music),

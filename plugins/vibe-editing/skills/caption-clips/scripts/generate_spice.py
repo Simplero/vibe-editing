@@ -58,6 +58,7 @@ if VIBE_SHARED not in _sys.path:
 # ── end bootstrap ──
 import argparse
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -84,16 +85,62 @@ NUMWORDS = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eigh
             "hundred", "thousand", "million", "billion", "trillion", "percent", "dollars", "grand"}
 
 
+# ── BINDING RULE 2 — asterisk swears in the BURNED CAPTION TEXT ONLY (audio is never touched) ──
+# Mask profanity so the caption reads "f*****g" / "s**t" / "f**k" while the spoken audio stays verbatim
+# (Calvin 2026-07-05). Keep the first + last LETTER, asterisk the interior letters, preserve any
+# punctuation/apostrophes/case. Toggle: preset key "mask_profanity" (default ON); set false to disable.
+# Patterns fullmatch the letters-only form of a token, so inflections mask (fucking, pissed) while
+# innocent look-alikes do NOT (class/pass/assume/adamant/assassin never match the anchored ^…$).
+_MASK_PROFANITY = True
+_SWEAR_RE = re.compile("(?:%s)" % "|".join([
+    r"(?:mother)?fuck[a-z]*",
+    r"(?:bull|horse|bat|dip|ape|dog)?shit[a-z]*",
+    r"ass(?:hole[s]?|hat[s]?|wipe[s]?|clown[s]?|es)?",   # ass/asshole(s)/asses — NOT class/pass/assume
+    r"(?:jack|dumb|bad|smart)ass(?:es)?",
+    r"bitch[a-z]*",
+    r"(?:god)?damn(?:ed|it|edest)?",
+    r"bastard[s]?",
+    r"piss(?:ed|ing|es)?",
+    r"cunt[s]?",
+    r"douche(?:bag[s]?)?",
+    r"prick[s]?",
+    r"twat[s]?",
+    r"wank(?:er[s]?|ing|ed)?",
+]), re.I)
+
+
+def _is_swear(s: str) -> bool:
+    b = "".join(c for c in s.lower() if c.isalpha())
+    return bool(b) and _SWEAR_RE.fullmatch(b) is not None
+
+
+def mask_profanity(s: str) -> str:
+    """Keep first+last letter, asterisk the interior letters; punctuation/case preserved."""
+    if not _MASK_PROFANITY or not _is_swear(s):
+        return s
+    alpha = [i for i, c in enumerate(s) if c.isalpha()]
+    if len(alpha) < 2:
+        return s
+    first, last = alpha[0], alpha[-1]
+    return "".join("*" if (c.isalpha() and i not in (first, last)) else c
+                   for i, c in enumerate(s))
+
+
 def disp(word: str) -> str:
     """Displayed token: drop terminal . and , (keep ? ! ' $ % # and inner punctuation), keep I-forms,
     and PRESERVE proper-noun / acronym capitalization (Apollo Creed, Bangladesh, AI) — the transcript
-    is already lowercased by normalize_simple, so any remaining uppercase is intentional."""
+    is already lowercased by normalize_simple, so any remaining uppercase is intentional.
+    RULE 2: profanity is masked here (the single display chokepoint), so audio stays verbatim."""
     t = word.strip().rstrip(".,")
+    # Standalone pronoun "I" and its contractions are ALWAYS capitalized in English,
+    # even in an otherwise-lowercase caption style. Force it regardless of incoming case.
+    if t.lower() in ("i", "i'm", "i'll", "i'd", "i've"):
+        return mask_profanity("I" + t[1:])
     if t in KEEP_I:
-        return t
+        return mask_profanity(t)
     if any(c.isupper() for c in t):
-        return t
-    return t.lower()
+        return mask_profanity(t)
+    return mask_profanity(t.lower())
 
 
 def bare(word: str) -> str:
@@ -154,9 +201,16 @@ def main() -> int:
     ap.add_argument("--min-cue-dur", type=float, default=None,
                     help="Override min on-screen seconds per caption. Lower (~0.25) for fast talkers "
                          "whose captions otherwise lag behind the audio.")
+    ap.add_argument("--emphasis-force-last", default=None,
+                    help="Comma-separated word(s) to FORCE as the brand-yellow emphasis pop on their "
+                         "LAST occurrence in the clip (overrides the heuristic + the function-word skip). "
+                         "Use for a director-specified payoff word, e.g. --emphasis-force-last you for a "
+                         "clip that lands on 'the value is YOU'. Merges with preset key emphasis_force_last.")
     a = ap.parse_args()
 
     P = json.loads(a.preset.read_text())
+    global _MASK_PROFANITY
+    _MASK_PROFANITY = bool(P.get("mask_profanity", True))  # RULE 2 toggle (default ON)
     words = json.loads(a.transcript.read_text())["words"]
     N = len(words)
     if not N:
@@ -177,6 +231,20 @@ def main() -> int:
     strong_words = set(w.lower() for w in auto.get("words_strong", []))
     colors = P["colors"]
     default_voice = P.get("default_voice", "speaker")
+    # ── BINDING RULE 3 — brand-yellow emphasis pops ──
+    # Pop the single key word per caption line in brand yellow (#FFD643). Uses the director's per-word
+    # weights/sizes when present (LLM path), else a content-word heuristic, so it works on every clip.
+    # Applies to the DEFAULT (speaker) voice only — guest turns are already fully yellow and numbers use
+    # number_color, so those cues are skipped (no double-pop). Toggle: "emphasis_color_enabled" (default ON);
+    # colour from "emphasis_color" (falls back to number_color / colors.guest / #FFD643).
+    emphasis_hex = (P.get("emphasis_color") or number_color or colors.get("guest") or "FFD643").lstrip("#")
+    EMPH_ON = bool(P.get("emphasis_color_enabled", True))
+    emph_idx = set()  # word indices to pop yellow — populated after cue chunking below
+    # Director-forced payoff word(s): FORCE the LAST occurrence of each to be the yellow pop
+    # (overrides the heuristic + function-word skip). Merge preset key + CLI.
+    force_last = [w.strip().lower() for w in
+                  (list(P.get("emphasis_force_last", []))
+                   + ((a.emphasis_force_last or "").split(","))) if w.strip()]
     # SIZE axis (data-derived from the reference editor's 19 clips): base 100, light/strong/peak bumps.
     sizes = P.get("sizes", {"base": 100, "emph": 125, "strong": 150, "peak": 180})
     auto_size = P.get("auto_size", {})           # default size bumps with no style stream, e.g. {"numbers": "emph"}
@@ -208,7 +276,10 @@ def main() -> int:
     def color_hex(i):
         if number_color and is_number(words[i]["word"]):
             return number_color
-        return colors.get(voice_of(i), colors.get("speaker", "FFFFFF"))
+        v = voice_of(i)
+        if EMPH_ON and v == default_voice and i in emph_idx:   # RULE 3 — brand-yellow key-word pop
+            return emphasis_hex
+        return colors.get(v, colors.get("speaker", "FFFFFF"))
 
     def size_of(i):
         # \fscx/\fscy percent. Style stream 's' = a tier name ("emph"/"strong"/"peak") or a raw
@@ -282,6 +353,40 @@ def main() -> int:
                 and chunk_chars(merged[0] + merged[1]) <= MAXC + 7):
             merged[1] = merged[0] + merged[1]; merged = merged[1:]
         chunks = merged
+
+    # RULE 3 — pick ONE key word per finalized cue to pop yellow (tasteful: ~1 word per line).
+    # Rank candidates by the director's weight tier, then size, then word length; skip function words,
+    # numbers (already yellow), and any cue that already carries a non-speaker (guest) or number word.
+    if EMPH_ON:
+        _wrank = {"mute": 0, "base": 0, "soft": 1, "strong": 2,
+                  "emphasis": 3, "emph": 3, "payoff": 4, "peak": 4}
+        for ch in chunks:
+            if any(voice_of(i) != default_voice or (number_color and is_number(words[i]["word"]))
+                   for i in ch):
+                continue  # cue already has a yellow pop (guest voice / number)
+            best, best_score = None, None
+            for i in ch:
+                b = bare(words[i]["word"])
+                if len(b) < 3 or b in FUNCTION_WORDS or is_number(words[i]["word"]):
+                    continue
+                score = (_wrank.get(weight_of(i), 0), size_of(i), len(b))
+                if best_score is None or score > best_score:
+                    best, best_score = i, score
+            if best is not None:
+                emph_idx.add(best)
+
+        # FORCE a director-specified payoff word (e.g. "you" for "the value is YOU"): pop its LAST
+        # occurrence, overriding whatever the heuristic picked in that cue (only that word pops there).
+        for fw in force_last:
+            hits = [i for i in range(N) if bare(words[i]["word"]) == fw and voice_of(i) == default_voice]
+            if not hits:
+                continue
+            fi = hits[-1]
+            for ch in chunks:
+                if fi in ch:
+                    emph_idx.difference_update(ch)  # clear other picks in the closing cue
+                    break
+            emph_idx.add(fi)
 
     # --- timing: function-word onset-correction + min-duration + zero-gap ---
     T = P.get("timing", {})
