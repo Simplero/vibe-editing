@@ -367,7 +367,8 @@ def main() -> int:
             best, best_score = None, None
             for i in ch:
                 b = bare(words[i]["word"])
-                if len(b) < 3 or b in FUNCTION_WORDS or is_number(words[i]["word"]):
+                if (len(b) < 3 or b in FUNCTION_WORDS or is_number(words[i]["word"])
+                        or _is_swear(words[i]["word"])):  # never pop a masked swear as the key word
                     continue
                 score = (_wrank.get(weight_of(i), 0), size_of(i), len(b))
                 if best_score is None or score > best_score:
@@ -378,15 +379,16 @@ def main() -> int:
         # FORCE a director-specified payoff word (e.g. "you" for "the value is YOU"): pop its LAST
         # occurrence, overriding whatever the heuristic picked in that cue (only that word pops there).
         for fw in force_last:
+            # Pop the payoff word on EVERY cue it lands in (a repeated payoff like
+            # "the value is you … the value is you" must pop "you" both times, not just the last),
+            # clearing whatever the heuristic picked in each of those cues.
             hits = [i for i in range(N) if bare(words[i]["word"]) == fw and voice_of(i) == default_voice]
-            if not hits:
-                continue
-            fi = hits[-1]
-            for ch in chunks:
-                if fi in ch:
-                    emph_idx.difference_update(ch)  # clear other picks in the closing cue
-                    break
-            emph_idx.add(fi)
+            for fi in hits:
+                for ch in chunks:
+                    if fi in ch:
+                        emph_idx.difference_update(ch)  # clear the heuristic's pick in that cue
+                        break
+                emph_idx.add(fi)
 
     # --- timing: function-word onset-correction + min-duration + zero-gap ---
     T = P.get("timing", {})
