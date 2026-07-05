@@ -367,9 +367,8 @@ def main() -> int:
             best, best_score = None, None
             for i in ch:
                 b = bare(words[i]["word"])
-                if (len(b) < 3 or b in FUNCTION_WORDS or is_number(words[i]["word"])
-                        or _is_swear(words[i]["word"])):  # never pop a masked swear as the key word
-                    continue
+                if len(b) < 3 or b in FUNCTION_WORDS or is_number(words[i]["word"]):
+                    continue  # a swear IS eligible — it's emphatic by nature (Calvin's call); still masked in text
                 score = (_wrank.get(weight_of(i), 0), size_of(i), len(b))
                 if best_score is None or score > best_score:
                     best, best_score = i, score
